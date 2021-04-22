@@ -1,0 +1,76 @@
+
+[x] decide isa
+[x] implement types for representing isa
+[] implement interpreter for isa
+[] implement display for isa
+[] implement parser for isa
+
+[] decide language features
+[] implement types representing lang constructs
+[] implement compiler
+
+[] implement parser for source lang
+
+
+============== Architecture: ==============
+
+answer register:
+  rans
+
+stack pointer:
+  rsp
+
+instruction pointer:
+  rip
+
+and a stack
+
+============== ISA: ==============
+Operands:
+  immediate: eg, 2
+  register: eg, rans
+  stack offset: eg, [rsp + 2]
+
+(following convention of: <instr> <src>, <dest>)
+Instructions:
+  mov op, op
+  add op, op
+  sub op, op
+  mul op, op
+  cmp op, op
+  label
+  jmp lbl
+  je lbl
+  jne lbl
+  call lbl
+  ret
+
+============== Language features: ==============
+
+(add1 e)
+(sub1 e)
+(+ l r)
+(- l r)
+(* l r)
+(= l r)
+(let (id v) b)
+(if c t e)
+(def (f args) body)
+(f args)
+
+
+
+==== examples ====
+# factorial function
+(def (fact n)
+  (if (= n 0)
+    1
+    (* n (fact (sub1 n)))))
+
+# fibonacci function
+(def (fib n)
+  (if (= n 0)
+    1
+    (if (= n 1)
+      1
+      (+ (fib (- n 1)) (fib (- n 2))))))
