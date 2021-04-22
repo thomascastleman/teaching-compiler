@@ -28,7 +28,7 @@ class Instr:
     return isinstance(self, Jne)
 
   def isCall(self):
-    return isinstance(self, isCall)
+    return isinstance(self, Call)
 
   def isRet(self):
     return isinstance(self, Ret)
@@ -43,6 +43,9 @@ class Mov(Instr):
       self.src == other.src and \
       self.dest == other.dest
 
+  def __str__(self):
+    return f"\tmov {self.src}, {self.dest}"
+
 class Add(Instr):
   def __init__(self, src, dest):
     self.src = src
@@ -52,6 +55,9 @@ class Add(Instr):
     return isinstance(other, Add) and \
       self.src == other.src and \
       self.dest == other.dest
+
+  def __str__(self):
+    return f"\tadd {self.src}, {self.dest}"
 
 class Sub(Instr):
   def __init__(self, src, dest):
@@ -63,6 +69,9 @@ class Sub(Instr):
       self.src == other.src and \
       self.dest == other.dest
 
+  def __str__(self):
+    return f"\tsub {self.src}, {self.dest}"
+
 class Mul(Instr):
   def __init__(self, src, dest):
     self.src = src
@@ -72,6 +81,9 @@ class Mul(Instr):
     return isinstance(other, Mul) and \
       self.src == other.src and \
       self.dest == other.dest
+
+  def __str__(self):
+    return f"\tmul {self.src}, {self.dest}"
 
 class Cmp(Instr):
   def __init__(self, left, right):
@@ -83,6 +95,9 @@ class Cmp(Instr):
       self.left == other.left and \
       self.right == other.right
 
+  def __str__(self):
+    return f"\tcmp {self.left}, {self.right}"
+
 class Label(Instr):
   def __init__(self, label):
     self.label = label
@@ -90,6 +105,9 @@ class Label(Instr):
   def __eq__(self, other):
     return isinstance(other, Label) and \
       self.label == other.label
+
+  def __str__(self):
+    return f"{self.label}:"
   
 class Jmp(Instr):
   def __init__(self, target):
@@ -99,6 +117,9 @@ class Jmp(Instr):
     return isinstance(other, Jmp) and \
       self.target == other.target
 
+  def __str__(self):
+    return f"\tjmp {self.target}"
+
 class Je(Instr):
   def __init__(self, target):
     self.target = target
@@ -106,6 +127,9 @@ class Je(Instr):
   def __eq__(self, other):
     return isinstance(other, Je) and \
       self.target == other.target
+
+  def __str__(self):
+    return f"\tje {self.target}"
 
 class Jne(Instr):
   def __init__(self, target):
@@ -115,6 +139,9 @@ class Jne(Instr):
     return isinstance(other, Jne) and \
       self.target == other.target
 
+  def __str__(self):
+    return f"\tjne {self.target}"
+
 class Call(Instr):
   def __init__(self, target):
     self.target = target
@@ -123,9 +150,15 @@ class Call(Instr):
     return isinstance(other, Call) and \
       self.target == other.target
 
+  def __str__(self):
+    return f"\tcall {self.target}"
+
 class Ret(Instr):
   def __init__(self):
     pass
 
   def __eq__(self, other):
     return isinstance(other, Ret)
+
+  def __str__(self):
+    return "\tret"

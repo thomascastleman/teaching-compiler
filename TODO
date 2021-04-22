@@ -1,8 +1,8 @@
 
 [x] decide isa
 [x] implement types for representing isa
-[] implement interpreter for isa
-[] implement display for isa
+[x] implement interpreter for isa
+[x] implement display for isa
 [] implement parser for isa
 
 [] decide language features

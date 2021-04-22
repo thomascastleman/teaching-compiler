@@ -21,6 +21,9 @@ class Imm(Operand):
     return isinstance(other, Imm) and \
       self.value == other.value
 
+  def __str__(self):
+    return str(self.value)
+
 class Rans(Operand):
   """Answer register rans"""
   def __init__(self):
@@ -28,6 +31,9 @@ class Rans(Operand):
 
   def __eq__(self, other):
     return isinstance(other, Rans)
+
+  def __str__(self):
+    return "rans"
 
 class Rsp(Operand):
   """Stack pointer register rsp"""
@@ -37,6 +43,9 @@ class Rsp(Operand):
   def __eq__(self, other):
     return isinstance(other, Rsp)
 
+  def __str__(self):
+    return "rsp"
+
 class StackOff(Operand):
   """Offset from stack pointer"""
   def __init__(self, off):
@@ -45,3 +54,6 @@ class StackOff(Operand):
   def __eq__(self, other):
     return isinstance(other, StackOff) and \
       self.off == other.off
+
+  def __str__(self):
+    return f"[rsp + {self.off}]"
