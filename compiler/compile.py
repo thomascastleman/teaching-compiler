@@ -1,3 +1,4 @@
+from typing import List
 from .Defn import *
 from .Expr import *
 from .Env import *
@@ -5,22 +6,25 @@ from .util import *
 from rasm.Instr import *
 from rasm.Operand import *
 
-def compile(defns: list[Defn], body: Expr) -> list[Instr]:
+def compile(defns: List[Defn], body: Expr) -> List[Instr]:
   """Consumes a program (list of function definitions and a body) 
   and generates equivalent code in the target language"""
   # compile definitions
   defn_instrs = []
   for d in defns:
-    defn_instrs += compile_defn(d)
+    defn_instrs += compile_defn(defns, d)
 
   # compile body
   body_instrs = compile_expr(defns, body, 1, Env())
 
   return defn_instrs + [Label("entry")] + body_instrs
 
-def compile_expr(defns: list[Defn], exp: Expr, si: int, env: Env) -> list[Instr]:
+def compile_expr(defns: List[Defn], exp: Expr, si: int, env: Env) -> List[Instr]:
   """Generates instructions for a given expression, at a given stack
   index, and in a given environment"""
+  if exp.isNum():
+    return [Mov(Imm(exp.value), Rans())]
+
   if exp.isAdd1():
     return \
       compile_expr(defns, exp.operand, si, env) + \
@@ -104,19 +108,56 @@ def compile_expr(defns: list[Defn], exp: Expr, si: int, env: Env) -> list[Instr]
     if len(exp.args) != len(defn.args):
       raise ArityMismatch(exp.args, defn)
 
-    # compile arguments, put them on the stack above ret addr loc
-    # adjust rsp
-    # call
-    # adjust rsp
+    # stack base is highest currently in-use stack index
+    stack_base_idx = si - 1
+    fn_label = function_label(defn.name)
+
+    arg_instrs = []
+    for i in range(len(exp.args)):
+      arg = exp.args[i]
+
+      # arguments start at stack base + 2
+      # return addr goes at stack base + 1
+      arg_si = stack_base_idx + 2 + i
+
+      arg_instrs += compile_expr(defns, arg, arg_si, env)
+      arg_instrs += [Mov(Rans(), StackOff(arg_si))]
+
+    return \
+      arg_instrs + \
+      [Add(Imm(stack_base_idx), Rsp()),
+      Call(fn_label),
+      Sub(Imm(stack_base_idx), Rsp())]
 
   elif exp.isName():
-    pass
+    name_si = env.lookup(exp.name)
+
+    if name_si is None:
+      raise UnboundName(exp.name)
+
+    return [Mov(StackOff(name_si), Rans())]
+
   else:
     raise ValueError(f"compile_expr: unexpected expression: {exp}")
 
-def compile_defn(defn: Defn) -> list[Instr]:
+def compile_defn(defns: List[Defn], defn: Defn) -> List[Instr]:
   """Generates instructions for a function definition"""
-  pass
+  # bind parameters to successive stack locs starting at si = 1
+  # si = 0 is the return address
+  env = Env()
+  for i in range(len(defn.params)):
+    param = defn.params[i]
+    env = env.extend(param, i + 1)
+
+  # next si is stack index after all arguments
+  next_si = 1 + len(defn.params)
+
+  # function label, then body, then return
+  return \
+    [Label(function_label(defn.name))] + \
+    compile_expr(defns, defn.body, next_si, env) + \
+    [Ret()]
+
 
 # ============= Compile Errors =============
 

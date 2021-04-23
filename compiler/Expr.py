@@ -1,5 +1,8 @@
 
 class Expr:
+  def isNum(self):
+    return isinstance(self, Num)
+
   def isAdd1(self):
     return isinstance(self, Add1)
 
@@ -29,6 +32,17 @@ class Expr:
 
   def isName(self):
     return isinstance(self, Name)
+
+class Num(Expr):
+  def __init__(self, value):
+    self.value = value
+
+  def __eq__(self, other):
+    return isinstance(other, Num) and \
+      self.value == other.value
+
+  def __str__(self):
+    return str(self.value)
 
 class Add1(Expr):
   def __init__(self, operand):

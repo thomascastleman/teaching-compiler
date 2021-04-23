@@ -1,5 +1,5 @@
 PYTHON = python3.8 # just should be >= 3.7
-TESTS = vm_tests
+TESTS = vm_tests compiler_tests
 
 .PHONY: test
 
