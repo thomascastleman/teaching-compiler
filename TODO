@@ -7,9 +7,10 @@ ISA:
 
 Lang
 [x] decide language features
-[] implement AST
-[] implement compiler
+[x] implement AST
+[x] implement compiler
 [] implement parser for source lang
+[] test compiler
 
 [] implement repl
 [] implement compile-to-file
