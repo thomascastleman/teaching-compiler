@@ -1,15 +1,19 @@
 
+ISA:
 [x] decide isa
 [x] implement types for representing isa
 [x] implement interpreter for isa
 [x] implement display for isa
-[] implement parser for isa
 
-[] decide language features
-[] implement types representing lang constructs
+Lang
+[x] decide language features
+[] implement AST
 [] implement compiler
-
 [] implement parser for source lang
+
+[] implement repl
+[] implement compile-to-file
+[] implement run-file
 
 
 ============== Architecture: ==============
