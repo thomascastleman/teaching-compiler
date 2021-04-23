@@ -42,7 +42,10 @@ class Num(Expr):
       self.value == other.value
 
   def __str__(self):
-    return str(self.value)
+    if self.value.is_integer():
+      return str(int(self.value))
+    else:
+      return str(self.value)
 
 class Add1(Expr):
   def __init__(self, operand):
@@ -154,7 +157,7 @@ class App(Expr):
     self.args = args
 
   def __eq__(self, other):
-    return isinstance(other, Let) and \
+    return isinstance(other, App) and \
       self.fname == other.fname and \
       self.args == other.args 
 

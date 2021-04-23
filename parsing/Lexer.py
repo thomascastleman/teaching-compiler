@@ -21,11 +21,14 @@ class Token:
     self.name = name
     self.lexeme = lexeme
 
+  def __repr__(self):
+    return f"Token({self.name}, {self.lexeme})"
+
 class Lexer:
   def __init__(self, patterns):
     self.patterns = patterns
 
-  def lex(pgrm: str) -> List[Token]:
+  def lex(self, pgrm: str) -> List[Token]:
     """Lex a program to produce a list of tokens"""
     tokens = []
     # while there are tokens left to lex
@@ -45,17 +48,22 @@ class Lexer:
       
       # didn't match any pattern
       if longest_mat is None: 
-        raise InvalidToken(pgrm)
+        raise LexError(f"invalid token at \"{recover_bad_token(pgrm)}\"")
 
       after_mat = len(longest_mat)
       assert after_mat > 0
 
       # add token and move past lexeme in input
       if longest_mat_token is not None:
-        tokens.push(longest_mat_token)
+        tokens.append(longest_mat_token)
       pgrm = pgrm[after_mat:]
 
+    return tokens
 
-class InvalidToken(Exception):
-  def __init__(self, pgrm):
-    self.pgrm = pgrm
+def recover_bad_token(stream: str) -> str:
+  """Pull the leading non-whitespace string off the input stream"""
+  return stream.split(' ')[0]
+
+class LexError(Exception):
+  def __init__(self, msg):
+    self.msg = msg

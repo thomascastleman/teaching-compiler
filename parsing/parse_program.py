@@ -3,73 +3,40 @@ from enum import Enum, auto
 from compiler.Defn import *
 from compiler.Expr import *
 from .Lexer import *
-
-class Tok(Enum):
-  LPAREN = auto()
-  RPAREN = auto()
-  SYM = auto()
-  NUM = auto()
-  DEF = auto()
-  ADD1 = auto()
-  SUB1 = auto()
-  PLUS = auto()
-  MINUS = auto()
-  TIMES = auto()
-  EQUALS = auto()
-  IF = auto()
-  LET = auto()
-
-def parse_program(pgrm: str) -> (List[Defn], Expr):
-  """Parses a string program to produce a list of function
-  definitions and a program body expression"""
-  lexer = Lexer([
-    Pattern(r"\(",                        lambda s: Token(Tok.LPAREN, None)),
-    Pattern(r"\)",                        lambda s: Token(Tok.RPAREN, None)),
-    Pattern(r"\s+",                       lambda s: None),
-    Pattern(r"def",                       lambda s: Token(Tok.DEF, None)),
-    Pattern(r"add1",                      lambda s: Token(Tok.ADD1, None)),
-    Pattern(r"sub1",                      lambda s: Token(Tok.SUB1, None)),
-    Pattern(r"\+",                        lambda s: Token(Tok.PLUS, None)),
-    Pattern(r"\-",                        lambda s: Token(Tok.MINUS, None)),
-    Pattern(r"\*",                        lambda s: Token(Tok.TIMES, None)),
-    Pattern(r"=",                         lambda s: Token(Tok.EQUALS, None)),
-    Pattern(r"if",                        lambda s: Token(Tok.IF, None)),
-    Pattern(r"let",                       lambda s: Token(Tok.LET, None)),
-    Pattern(r"-?[0-9]+(\.[0-9]+)?",       lambda s: Token(Tok.NUM, float(s))),
-    Pattern(r"[a-zA-Z][a-zA-Z0-9\?\!-]*", lambda s: Token(Tok.SYM, s)),
-  ])
-
-  tokens = lexer.lex(pgrm)
-  parser = ProgramParser(tokens)
-
-  return parser.parse()
+from .Parser import *
 
 class ProgramParser(Parser):
 
-  def parse() -> (List[Defn], Expr):
+  def __init__(self, display_token_name):
+    super().__init__(display_token_name)
+
+  def parse(self, tokens) -> (List[Defn], Expr):
     """Parses a full program (defns and then a body) from its 
     input token stream"""
-    assert self.tokens is not None
+    if len(tokens) == 0:
+      raise EmptyProgram
 
-    defn_prefix = [
-      Tok.LPAREN,
-      Tok.DEF
-    ]
+    # initialize parser state
+    self.setup(tokens)
 
     # parse any defns in the program
     defns = []
-    while self.prefix_matches(defn_prefix):
-      defns.push(self.parse_defn())
+    defn_prefix = [Tok.LPAREN, Tok.DEF]
+    while self.matches_prefix(defn_prefix):
+      defns.append(self.parse_defn())
+
+    if self.index == len(self.tokens):
+      raise ParseError("program has no body")
 
     # parse program body
     body = self.parse_expr()
 
-    if len(self.tokens) > 0:
-      raise BodyNotLast()
+    if self.index < len(self.tokens):
+      raise ParseError("body must be last expression in program")
 
     return (defns, body)
 
-  def parse_defn() -> Defn:
+  def parse_defn(self) -> Defn:
     self.eat_prefix([
       Tok.LPAREN,
       Tok.DEF,
@@ -77,14 +44,15 @@ class ProgramParser(Parser):
     ])
 
     # function name should be a valid symbol
-    if not self.prefix_matches([Tok.SYM]):
-      raise InvalidFunName(self.next())
+    if not self.matches(Tok.SYM):
+      raise ParseError(
+        f"invalid function name: {display_token_name(self.peek().name)}")
     fname = self.next().lexeme
 
     # parse parameter names (symbols)
     params = []
-    while self.prefix_matches([Tok.SYM]):
-      params.push(self.next().lexeme)
+    while self.matches(Tok.SYM):
+      params.append(self.next().lexeme)
 
     # closing paren for param list
     self.eat(Tok.RPAREN)  
@@ -95,7 +63,7 @@ class ProgramParser(Parser):
 
     return Defn(fname, params, body)
 
-  def parse_expr() -> Expr:
+  def parse_expr(self) -> Expr:
     """Parses an expression off the input stream"""
     if self.matches(Tok.LPAREN):
       self.eat(Tok.LPAREN)
@@ -155,7 +123,8 @@ class ProgramParser(Parser):
         self.eat(Tok.LPAREN)
         
         if not self.matches(Tok.SYM):
-          raise InvalidVarName(self.next())
+          raise ParseError(
+            f"invalid identifier name: {display_token_name(self.peek().name)}")
         
         name = self.next().lexeme
         value = self.parse_expr()
@@ -168,12 +137,13 @@ class ProgramParser(Parser):
       # must be an App
       else:
         if not self.matches(Tok.SYM):
-          raise InvalidFunInApp(self.next())
-        
+          raise ParseError(
+            f"invalid function in application: {display_token_name(self.peek().name)}")
+
         name = self.next().lexeme
         args = []
         while not self.matches(Tok.RPAREN):
-          args.push(self.parse_expr())
+          args.append(self.parse_expr())
         
         self.eat(Tok.RPAREN)
         return App(name, args)
@@ -189,24 +159,80 @@ class ProgramParser(Parser):
       return Name(name)
 
     else:
-      raise InvalidExpr(self.tokens)
+      raise ParseError(
+        f"invalid expression near {display_token_name(self.peek().name)}")
 
-class BodyNotLast(Exception):
-  def __init__(self, extra_tokens):
-    self.extra_tokens = extra_tokens
+class EmptyProgram(Exception):
+  """Exception for indicating empty input"""
+  pass
 
-class InvalidFunName(Exception):
-  def __init__(self, token):
-    self.token = token
+class Tok(Enum):
+  LPAREN = auto()
+  RPAREN = auto()
+  SYM = auto()
+  NUM = auto()
+  DEF = auto()
+  ADD1 = auto()
+  SUB1 = auto()
+  PLUS = auto()
+  MINUS = auto()
+  TIMES = auto()
+  EQUALS = auto()
+  IF = auto()
+  LET = auto()
 
-class InvalidVarName(Exception):
-  def __init__(self, token):
-    self.token = token
+def display_token_name(name) -> str:
+  """Convert a token name into a user-facing string"""
+  if name == Tok.LPAREN:
+    return "'('"
+  elif name == Tok.RPAREN:
+    return "')'"
+  elif name == Tok.SYM:
+    return "symbol"
+  elif name == Tok.NUM:
+    return "number"
+  elif name == Tok.DEF:
+    return "def"
+  elif name == Tok.ADD1:
+    return "add1"
+  elif name == Tok.SUB1:
+    return "sub1"
+  elif name == Tok.PLUS:
+    return "+"
+  elif name == Tok.MINUS:
+    return "-"
+  elif name == Tok.TIMES:
+    return "*"
+  elif name == Tok.EQUALS:
+    return "="
+  elif name == Tok.IF:
+    return "'if'"
+  elif name == Tok.LET:
+    return "'let'"
 
-class InvalidFunInApp(Exception):
-  def __init__(self, token):
-    self.token = token
+# global lexer for programs
+lexer = Lexer([
+  Pattern(r"\(",                        lambda s: Token(Tok.LPAREN, None)),
+  Pattern(r"\)",                        lambda s: Token(Tok.RPAREN, None)),
+  Pattern(r"\s+",                       lambda s: None),
+  Pattern(r"def",                       lambda s: Token(Tok.DEF, None)),
+  Pattern(r"add1",                      lambda s: Token(Tok.ADD1, None)),
+  Pattern(r"sub1",                      lambda s: Token(Tok.SUB1, None)),
+  Pattern(r"\+",                        lambda s: Token(Tok.PLUS, None)),
+  Pattern(r"\-",                        lambda s: Token(Tok.MINUS, None)),
+  Pattern(r"\*",                        lambda s: Token(Tok.TIMES, None)),
+  Pattern(r"=",                         lambda s: Token(Tok.EQUALS, None)),
+  Pattern(r"if",                        lambda s: Token(Tok.IF, None)),
+  Pattern(r"let",                       lambda s: Token(Tok.LET, None)),
+  Pattern(r"-?[0-9]+(\.[0-9]+)?",       lambda s: Token(Tok.NUM, float(s))),
+  Pattern(r"[a-zA-Z][a-zA-Z0-9\?\!-]*", lambda s: Token(Tok.SYM, s)),
+])
 
-class InvalidExpr(Exception):
-  def __init__(self, tokens):
-    self.tokens = tokens
+# global parser for programs
+parser = ProgramParser(display_token_name)
+
+def parse_program(pgrm: str) -> (List[Defn], Expr):
+  """Parses a string program to produce a list of function
+  definitions and a program body expression"""
+  tokens = lexer.lex(pgrm)
+  return parser.parse(tokens)
