@@ -5,6 +5,7 @@ GENSYM_COUNTER = 0
 
 def gensym(name: str) -> str:
   """Generates a globally unique name, using the given one as a base"""
+  global GENSYM_COUNTER
   uniq = f"{name}__{GENSYM_COUNTER}"
   GENSYM_COUNTER += 1
   return uniq

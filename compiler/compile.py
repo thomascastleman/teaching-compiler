@@ -105,7 +105,7 @@ def compile_expr(defns: List[Defn], exp: Expr, si: int, env: Env) -> List[Instr]
     if defn is None:
       raise UndefinedFun(exp.fname)
 
-    if len(exp.args) != len(defn.args):
+    if len(exp.args) != len(defn.params):
       raise ArityMismatch(exp.args, defn)
 
     # stack base is highest currently in-use stack index
@@ -161,15 +161,18 @@ def compile_defn(defns: List[Defn], defn: Defn) -> List[Instr]:
 
 # ============= Compile Errors =============
 
-class ArityMismatch(Exception):
+class CompileError(Exception):
+  pass
+
+class ArityMismatch(CompileError):
   def __init__(self, args, defn):
     self.args = args
     self.defn = defn
 
-class UndefinedFun(Exception):
+class UndefinedFun(CompileError):
   def __init__(self, fname):
     self.fname = fname
 
-class UnboundName(Exception):
+class UnboundName(CompileError):
   def __init__(self, name):
     self.name = name

@@ -4,13 +4,15 @@ ISA:
 [x] implement types for representing isa
 [x] implement interpreter for isa
 [x] implement display for isa
+[] convert VM errors into one type
 
 Lang
 [x] decide language features
 [x] implement AST
 [x] implement compiler
-[] implement parser for source lang
+[x] implement parser for source lang
 [] test compiler
+  [] test error cases
 
 [] implement repl
 [] implement compile-to-file
