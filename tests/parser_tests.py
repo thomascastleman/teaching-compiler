@@ -162,6 +162,12 @@ class ParserTests(unittest.TestCase):
     # invalid expression (missing lparen)
     with self.assertRaises(ParseError):
       parse_program("def (f x) x)")
+    # multiple definitions of same function
+    with self.assertRaises(ParseError):
+      parse_program("(def (f a) a) (def (g x) x) (def (f x) x) 10")
+    # bad parameter names in defn
+    with self.assertRaises(ParseError):
+      parse_program("(def (f 1 2 3) (+ 1 2))")
 
   def test_lex_error(self):
     with self.assertRaises(LexError):

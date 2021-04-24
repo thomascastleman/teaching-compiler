@@ -6,6 +6,7 @@ STACK_SIZE = 10_000
 ENTRY_LABEL = "entry"
 
 class VirtualMachine:
+
   def __init__(self):
     # registers
     self.rip = 0
@@ -35,8 +36,8 @@ class VirtualMachine:
       f"rip={self.rip} rans={self.rans} rsp={self.rsp}\n" + \
       "Flags:\n" + \
       f"fequal={self.fequal} fless={self.fless}" + \
-      "Stack: (first 15)\n" + \
-      f"{self.stack[:15]}..." + \
+      f"Stack: (size={STACK_SIZE})\n" + \
+      f"{self.stack[:15]}... (first 15)" + \
       "Current Instruction:\n" + \
       cur_instr
 
@@ -98,7 +99,7 @@ class VirtualMachine:
     self.label_addrs = self.map_labels(pgrm)
 
     if ENTRY_LABEL not in self.label_addrs:
-      raise NoEntry(pgrm)
+      raise NoEntry
 
     # start execution at the entry label
     self.rip = self.label_addrs[ENTRY_LABEL]
@@ -106,7 +107,7 @@ class VirtualMachine:
     # when rip has incremented past last instr, halt
     while self.rip != len(pgrm):
       if self.rip < 0 or self.rip > len(pgrm):
-        raise InvalidRip(self)
+        raise InvalidRip(self, self.rip)
       self.execute_instr(pgrm[self.rip])
 
   def execute_instr(self, instr: Instr):
@@ -170,7 +171,7 @@ class VirtualMachine:
       # push return address
       self.rsp += 1
       if self.rsp < 0 or self.rsp >= STACK_SIZE:
-        raise InvalidRsp(self)
+        raise InvalidRsp(self, self.rsp)
       self.stack[self.rsp] = self.rip + 1
 
       # jump to call target
@@ -180,7 +181,7 @@ class VirtualMachine:
     # pop ret addr, jump to it
     elif instr.isRet():
       if self.rsp < 0 or self.rsp >= STACK_SIZE:
-        raise InvalidRsp(self)
+        raise InvalidRsp(self, self.rsp)
 
       # pop return address and decrement rsp
       addr = self.stack[self.rsp]
@@ -199,46 +200,72 @@ class VirtualMachine:
 
 # ============= Virtual Machine Errors =============
 
-class BadDest(Exception):
+class VMError(Exception):
+  pass
+
+class BadDest(VMError):
   """A store was made to a bad operand (imm)"""
   def __init__(self, vm, op):
     self.vm = vm
     self.op = op
+  
+  def __str__(self):
+    return f"VMError: cannot store in operand {self.op}\n{self.vm}"
 
-class BadStackAccess(Exception):
+class BadStackAccess(VMError):
   """Stack was accessed at an invalid index"""
   def __init__(self, vm, si):
     self.vm = vm
     self.si = si
 
-class InvalidInstr(Exception):
+  def __str__(self):
+    return f"VMError: cannot access stack at index {self.si}\n{self.vm}"
+
+class InvalidInstr(VMError):
   """Unknown instruction detected in program"""
   def __init__(self, vm, instr):
     self.vm = vm
     self.instr = instr
 
-class InvalidTarget(Exception):
+  def __str__(self):
+    return f"VMError: invalid instruction {self.instr}\n{self.vm}"
+
+class InvalidTarget(VMError):
   """Unknown label used as a target"""
   def __init__(self, vm, label):
     self.vm = vm
     self.label = label
 
-class InvalidRip(Exception):
+  def __str__(self):
+    return f"VMError: invalid jump target '{self.label}'\n{self.vm}"
+
+class InvalidRip(VMError):
   """Bad value for rip"""
-  def __init__(self, vm):
+  def __init__(self, vm, rip):
     self.vm = vm
+    self.rip = rip
 
-class InvalidRsp(Exception):
+  def __str__(self):
+    return f"VMError: invalid rip encountered: {self.rip}\n{self.vm}"
+
+class InvalidRsp(VMError):
   """Bad value for rsp"""
-  def __init__(self, vm):
+  def __init__(self, vm, rsp):
     self.vm = vm
+    self.rsp = rsp
 
-class DuplicateLabel(Exception):
+  def __str__(self):
+    return f"VMError: invalid rsp encountered: {self.rsp}\n{self.vm}"
+
+class DuplicateLabel(VMError):
   """More than one instance of a given label"""
   def __init__(self, label):
     self.label = label
 
-class NoEntry(Exception):
+  def __str__(self):
+    return f"VMError: more than one instance of label '{self.label}'\n{self.vm}"
+
+class NoEntry(VMError):
   """Program has no entry label"""
-  def __init__(self, pgrm):
-    self.pgrm = pgrm
+  def __str__(self):
+    return f"VMError: program has no entry point\n{self.vm}"

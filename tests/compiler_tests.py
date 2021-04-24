@@ -135,6 +135,26 @@ class CompilerTests(unittest.TestCase):
         "(even 16)"),
       1)
 
+  def test_arity_mismatch(self):
+    with self.assertRaises(ArityMismatch):
+      compile_and_run("(def (f x y) (* x y)) (f 10)"),
+    with self.assertRaises(ArityMismatch):
+      compile_and_run("(def (g) (+ 2 3)) (g 17 1 0 4)"),
+
+  def test_undefined_fun(self):
+    with self.assertRaises(UndefinedFun):
+      compile_and_run("(def (g x) x) (f 5)")
+    with self.assertRaises(UndefinedFun):
+      compile_and_run("(let (fun 11) (fun 0 1 2))")
+  
+  def test_unbound_name(self):
+    with self.assertRaises(UnboundName):
+      compile_and_run("x")
+    with self.assertRaises(UnboundName):
+      compile_and_run("(def (f x) x) f")
+    with self.assertRaises(UnboundName):
+      compile_and_run("(+ 2 name)")
+
 
 if __name__ == '__main__':
   unittest.main()

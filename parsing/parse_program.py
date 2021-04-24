@@ -34,6 +34,14 @@ class ProgramParser(Parser):
     if self.index < len(self.tokens):
       raise ParseError("body must be last expression in program")
 
+    # check defns for uniqueness
+    defn_names = set()
+    for d in defns:
+      if d.name in defn_names:
+        raise ParseError(f"function {d.name} defined more than once")
+      else:
+        defn_names.add(d.name)
+
     return (defns, body)
 
   def parse_defn(self) -> Defn:

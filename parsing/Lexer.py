@@ -67,3 +67,6 @@ def recover_bad_token(stream: str) -> str:
 class LexError(Exception):
   def __init__(self, msg):
     self.msg = msg
+
+  def __str__(self):
+    return f"LexError: {self.msg}"
