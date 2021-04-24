@@ -9,13 +9,20 @@ class Parser:
     self.tokens = tokens
     self.index = 0
 
+  def empty(self):
+    """Have all tokens been processed"""
+    return self.index >= len(self.tokens)
+
   def peek(self):
     """Peek at the input stream at the current token"""
-    assert self.index < len(self.tokens)
+    if self.empty():
+      raise ParseError("unexpected end of program")
     return self.tokens[self.index]
 
   def next(self):
     """Move past the current token, returning it"""
+    if self.empty():
+      raise ParseError("unexpected end of program")
     tok = self.peek()
     self.index += 1
     return tok
@@ -23,7 +30,7 @@ class Parser:
   def eat(self, tok_name):
     """Consume the next token in the input stream,
     erroring if it is not what is expected"""
-    if self.index >= len(self.tokens):
+    if self.empty():
       raise ParseError(
         f"unexpected end of program, wanted {self.display_token_name(tok_name)}")
 
@@ -43,7 +50,10 @@ class Parser:
   def matches(self, name) -> bool:
     """Given a token name, determine if the first token
     on the input stream matches"""
-    return self.peek().name == name
+    if self.empty():
+      return False
+    else:
+      return self.peek().name == name
 
   def matches_prefix(self, prefix: list) -> bool:
     """Given a prefix of token names, determine if the 

@@ -25,11 +25,11 @@ class ProgramParser(Parser):
     while self.matches_prefix(defn_prefix):
       defns.append(self.parse_defn())
 
-    if self.index == len(self.tokens):
-      raise ParseError("program has no body")
+    body = None # optional body
 
-    # parse program body
-    body = self.parse_expr()
+    # if there are more tokens, parse a body expression
+    if self.index < len(self.tokens):
+      body = self.parse_expr()
 
     if self.index < len(self.tokens):
       raise ParseError("body must be last expression in program")
@@ -45,6 +45,9 @@ class ProgramParser(Parser):
     return (defns, body)
 
   def parse_defn(self) -> Defn:
+    if self.empty():
+      raise ParseError("unexpected end of program: expected a defn")
+
     self.eat_prefix([
       Tok.LPAREN,
       Tok.DEF,
@@ -73,6 +76,9 @@ class ProgramParser(Parser):
 
   def parse_expr(self) -> Expr:
     """Parses an expression off the input stream"""
+    if self.empty():
+      raise ParseError("unexpected end of program: expected expression")
+
     if self.matches(Tok.LPAREN):
       self.eat(Tok.LPAREN)
 
@@ -223,6 +229,7 @@ lexer = Lexer([
   Pattern(r"\(",                        lambda s: Token(Tok.LPAREN, None)),
   Pattern(r"\)",                        lambda s: Token(Tok.RPAREN, None)),
   Pattern(r"\s+",                       lambda s: None),
+  Pattern(r"#.*?(\n|$)",                lambda s: None),
   Pattern(r"def",                       lambda s: Token(Tok.DEF, None)),
   Pattern(r"add1",                      lambda s: Token(Tok.ADD1, None)),
   Pattern(r"sub1",                      lambda s: Token(Tok.SUB1, None)),

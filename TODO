@@ -14,9 +14,10 @@ Lang
 
 [x] display for all exceptions
 
-[] implement repl
-[] implement compile-to-file
-[] implement run-file
+[x] implement repl
+[x] implement run-file
+[x] implement compile-to-file
+[] implement run-rasm
 
 [] demo / student implementations
 
@@ -47,7 +48,7 @@ Instructions:
   sub op, op
   mul op, op
   cmp op, op
-  label
+  label:
   jmp lbl
   je lbl
   jne lbl

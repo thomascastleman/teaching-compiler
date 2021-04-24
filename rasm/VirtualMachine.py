@@ -80,7 +80,7 @@ class VirtualMachine:
       if ins.isLabel():
         # duplicate labels are not allowed
         if ins.label in label_addrs:
-          raise DuplicateLabel(ins.label)
+          raise DuplicateLabel(self, ins.label)
         label_addrs[ins.label] = addr + 1
     return label_addrs
 
@@ -95,11 +95,12 @@ class VirtualMachine:
   def execute(self, pgrm: list):
     """Execute a program (list of instructions), leaving
     the machine in a new state"""
+    self.__init__()
     self.pgrm = pgrm
     self.label_addrs = self.map_labels(pgrm)
 
     if ENTRY_LABEL not in self.label_addrs:
-      raise NoEntry
+      raise NoEntry(self)
 
     # start execution at the entry label
     self.rip = self.label_addrs[ENTRY_LABEL]
@@ -259,7 +260,8 @@ class InvalidRsp(VMError):
 
 class DuplicateLabel(VMError):
   """More than one instance of a given label"""
-  def __init__(self, label):
+  def __init__(self, vm, label):
+    self.vm = vm
     self.label = label
 
   def __str__(self):
@@ -267,5 +269,8 @@ class DuplicateLabel(VMError):
 
 class NoEntry(VMError):
   """Program has no entry label"""
+  def __init__(self, vm):
+    self.vm = vm
+
   def __str__(self):
     return f"VMError: program has no entry point\n{self.vm}"

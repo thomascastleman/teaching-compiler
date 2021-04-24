@@ -140,13 +140,15 @@ class ParserTests(unittest.TestCase):
         Defn("fun2", ["a", "b"], Name("b")),
       ], App("fun1", [App("fun2", [Num(4), Num(5)])])))
 
+    # program with no body is ok
+    self.assertEqual(
+      parse_program("(def (f x) x)"),
+      ([Defn("f", ["x"], Name("x"))], None))
+
   def test_parse_errors(self):
     # empty program
     with self.assertRaises(EmptyProgram):
       parse_program("")
-    # no body
-    with self.assertRaises(ParseError):
-      parse_program("(def (f x) x)")
     # body not last expression
     with self.assertRaises(ParseError):
       parse_program("(+ 1 2) (def (g x) x)")

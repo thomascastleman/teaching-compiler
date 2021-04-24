@@ -6,7 +6,8 @@ from parsing.parse_program import *
 ENTRY_LABEL = "entry"
 
 def compile_and_run(pgrm: str) -> float:
-  """Compiles the given program and runs it to produce a number"""
+  """Compiles the given program and runs it to produce a number
+  NOTE: does not catch exceptions, assumes tests will do so if intending"""
   # parse program to AST
   parsed = parse_program(pgrm)
   defns = parsed[0]
