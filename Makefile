@@ -12,6 +12,3 @@ test:
 		echo "Running $$exec"; \
 		$(PYTHON) -m tests.$$exec; \
 	done \
-
-repl:
-	$(PYTHON) -m scripts.repl

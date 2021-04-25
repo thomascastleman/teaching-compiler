@@ -19,6 +19,7 @@ Lang
 [x] implement compile-to-file
 [x] implement run-rasm
 
+[] improve current compiler implementation
 [] demo / student implementations
 
 

@@ -5,7 +5,6 @@ from parsing.parse_program import *
 from compiler.compile import *
 from rasm.VirtualMachine import *
 
-# initialize CLI args parser
 argparser = argparse.ArgumentParser(description="Compile a file")
 argparser.add_argument(
   'file', type=str, nargs=1, help='a file to compile')

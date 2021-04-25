@@ -1,16 +1,24 @@
 import signal
 import sys
+import argparse
 from .util import *
 from parsing.parse_program import *
-from compiler.compile import *
 from rasm.VirtualMachine import *
+from compiler.compile import *
+
+argparser = argparse.ArgumentParser(description="Launch a repl")
+argparser.add_argument(
+  '-d', '--demo', 
+  help='launch a repl using the demo implementation',
+  action='store_true')
+args = argparser.parse_args()
 
 def quit_handler(sig, frame):
   """Quit from the REPL on receipt of a signal"""
   print("\nExiting REPL")
   sys.exit(0)
 
-def launch_repl():
+def launch_repl(compile):
   """Creates a REPL which reads input from stdin, parses/compiles/runs, 
   then prints the resulting value"""
   # handle SIGINT by exiting gracefully
@@ -41,4 +49,7 @@ def launch_repl():
     except Exception as err:
       print(f"InternalError: {err}")
 
-launch_repl()
+print(args.demo)
+
+# TODO: if args.demo then use the demo implementation
+launch_repl(compile)
