@@ -67,20 +67,3 @@ Instructions:
 (if c t e)
 (def (f args) body)
 (f args)
-
-
-
-==== examples ====
-# factorial function
-(def (fact n)
-  (if (= n 0)
-    1
-    (* n (fact (sub1 n)))))
-
-# fibonacci function
-(def (fib n)
-  (if (= n 0)
-    1
-    (if (= n 1)
-      1
-      (+ (fib (- n 1)) (fib (- n 2))))))

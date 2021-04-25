@@ -145,6 +145,14 @@ class ParserTests(unittest.TestCase):
       parse_program("(def (f x) x)"),
       ([Defn("f", ["x"], Name("x"))], None))
 
+  def test_comments(self):
+    self.assertEqual(
+      parse_program("100 ; this is a comment"),
+      ([], Num(100)))
+    self.assertEqual(
+      parse_program("; comment above function\n(def (f x) x)\n(f 2)"),
+      ([Defn("f", ["x"], Name("x"))], App("f", [Num(2)])))
+
   def test_parse_errors(self):
     # empty program
     with self.assertRaises(EmptyProgram):

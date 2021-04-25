@@ -229,7 +229,7 @@ lexer = Lexer([
   Pattern(r"\(",                        lambda s: Token(Tok.LPAREN, None)),
   Pattern(r"\)",                        lambda s: Token(Tok.RPAREN, None)),
   Pattern(r"\s+",                       lambda s: None),
-  Pattern(r"#.*?(\n|$)",                lambda s: None),
+  Pattern(r";.*?(\n|$)",                lambda s: None),
   Pattern(r"def",                       lambda s: Token(Tok.DEF, None)),
   Pattern(r"add1",                      lambda s: Token(Tok.ADD1, None)),
   Pattern(r"sub1",                      lambda s: Token(Tok.SUB1, None)),
