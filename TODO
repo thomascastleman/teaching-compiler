@@ -17,7 +17,7 @@ Lang
 [x] implement repl
 [x] implement run-file
 [x] implement compile-to-file
-[] implement run-rasm
+[x] implement run-rasm
 
 [] demo / student implementations
 

@@ -33,11 +33,11 @@ class VirtualMachine:
 
     return \
       "Registers:\n" + \
-      f"rip={self.rip} rans={self.rans} rsp={self.rsp}\n" + \
+      f"  rip={self.rip} rans={self.rans} rsp={self.rsp}\n" + \
       "Flags:\n" + \
-      f"fequal={self.fequal} fless={self.fless}" + \
+      f"  fequal={self.fequal} fless={self.fless}\n" + \
       f"Stack: (size={STACK_SIZE})\n" + \
-      f"{self.stack[:15]}... (first 15)" + \
+      f"  {self.stack[:15]}... (first 15)\n" + \
       "Current Instruction:\n" + \
       cur_instr
 
@@ -48,7 +48,7 @@ class VirtualMachine:
     if op.isRsp():
       return self.rsp
     if op.isStackOff():
-      idx = self.rsp + op.off
+      idx = int(self.rsp) + op.off
       if idx >= 0 and idx < STACK_SIZE:
         return self.stack[idx]
       else:
@@ -63,7 +63,7 @@ class VirtualMachine:
     if op.isRsp():
       self.rsp = value
     if op.isStackOff():
-      idx = self.rsp + op.off
+      idx = int(self.rsp) + op.off
       if idx >= 0 and idx < STACK_SIZE:
         self.stack[idx] = value
       else:
@@ -173,7 +173,7 @@ class VirtualMachine:
       self.rsp += 1
       if self.rsp < 0 or self.rsp >= STACK_SIZE:
         raise InvalidRsp(self, self.rsp)
-      self.stack[self.rsp] = self.rip + 1
+      self.stack[int(self.rsp)] = self.rip + 1
 
       # jump to call target
       self.rip = target
@@ -185,7 +185,7 @@ class VirtualMachine:
         raise InvalidRsp(self, self.rsp)
 
       # pop return address and decrement rsp
-      addr = self.stack[self.rsp]
+      addr = self.stack[int(self.rsp)]
       self.rsp -= 1
 
       # jump to return address

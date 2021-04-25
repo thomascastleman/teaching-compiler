@@ -2,7 +2,7 @@ import unittest
 from parsing.parse_program import *
 
 class ParserTests(unittest.TestCase):
-  
+
   def test_num_literals(self):
     self.assertEqual(
       parse_program("17"),

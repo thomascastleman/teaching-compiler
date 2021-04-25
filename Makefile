@@ -1,5 +1,8 @@
 PYTHON = python3.8 # just should be >= 3.7
-TESTS = vm_tests compiler_tests parser_tests
+TESTS = vm_tests \
+	compiler_tests \
+	parser_tests \
+	rasm_parser_tests
 
 .PHONY: test
 
