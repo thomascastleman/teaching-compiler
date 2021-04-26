@@ -1,3 +1,5 @@
+![compiler-pipeline](https://user-images.githubusercontent.com/13399527/116156561-a7d75600-a6b9-11eb-8fd2-34f2dc1d3553.png)
+
 # teaching-compiler
 Materials for teaching about compilers.
 
