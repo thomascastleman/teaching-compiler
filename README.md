@@ -1,9 +1,13 @@
 ![compiler-pipeline](https://user-images.githubusercontent.com/13399527/116156561-a7d75600-a6b9-11eb-8fd2-34f2dc1d3553.png)
 
 # teaching-compiler
-Materials for teaching about compilers.
+Materials for teaching/learning about compilers.
+
+Note: this project expects Python >= 3.7 installed.
 
 ## Source Language
+The source language is a Lisp-like language supporting numbers, a few built-in operators, let bindings, conditionals, and functions (not first-class).
+
 The concrete syntax of the source language:
 ```
 <expr> ::=  <number>
@@ -40,7 +44,14 @@ A Defn is:
   Defn(name: str, params: List[str], body: Expr)
 ```
 
+A valid program in the source language consists of 0 or more function definitions, followed by a body expression that will be evaluated as the result of the program. The body expression *must* appear last. 
+
+For example source programs, see the `examples/` directory.
+
 ## Target Language
+
+The target language is an assembly language called `rasm`, for Randy's assembly. 
+It does not run natively on hardware but instead runs in a virtual machine.
 
 | Instruction           | Description |
 | --------------------- | ---------------------------------------- |
@@ -82,6 +93,8 @@ Operand is one of:
 
 ## Target Architecture
 
+The `rasm` virtual machine has the following components:
+
 |          | Description |
 | -------- | ------------- |
 | `rans`   | Answer register  |
@@ -90,6 +103,9 @@ Operand is one of:
 | `fequal` | Flag. Set if `a = b` for previous `cmp a, b`  |
 | `fless`  | Flag. Set if `a < b` for previous `cmp a, b`  |
 | Stack    | Fixed-size array of memory locations |
+
+The stack size is given by the `STACK_SIZE` constant in `rasm/VirtualMachine.py`, 
+and defaults to 10,000 memory locations.
 
 ## Errors
 
