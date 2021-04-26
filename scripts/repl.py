@@ -4,7 +4,9 @@ import argparse
 from .util import *
 from parsing.parse_program import *
 from rasm.VirtualMachine import *
-from compiler.compile import *
+from compiler.Errors import *
+from compiler.compile import compile as student_compile
+from demo.compile import compile as demo_compile
 
 argparser = argparse.ArgumentParser(description="Launch a repl")
 argparser.add_argument(
@@ -20,7 +22,8 @@ def quit_handler(sig, frame):
 
 def launch_repl(compile):
   """Creates a REPL which reads input from stdin, parses/compiles/runs, 
-  then prints the resulting value"""
+  then prints the resulting value. Generic over what compile function
+  to use so we can launch with both student/demo implementations"""
   # handle SIGINT by exiting gracefully
   signal.signal(signal.SIGINT, quit_handler)
 
@@ -46,8 +49,13 @@ def launch_repl(compile):
       continue
     except (LexError, ParseError, CompileError, VMError) as err:
       print(err)
+    except NotImplementedError as err:
+      print(f"NotImplementedError: {err}")
     except Exception as err:
       print(f"InternalError: {err}")
 
-# TODO: if args.demo then use the demo implementation
-launch_repl(compile)
+# if args.demo then use the demo implementation
+if args.demo:
+  launch_repl(demo_compile)
+else:
+  launch_repl(student_compile)

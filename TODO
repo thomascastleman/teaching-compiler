@@ -22,12 +22,11 @@ Lang
 [x] check type annotations on most things
 [x] more compiler tests
 [x] improve current compiler implementation
-[] demo / student implementations
+[x] demo / student implementations
 [] docs
 
 
 ============== Architecture: ==============
-
 answer register:
   rans
 
@@ -60,7 +59,6 @@ Instructions:
   ret
 
 ============== Language features: ==============
-
 (add1 e)
 (sub1 e)
 (+ l r)

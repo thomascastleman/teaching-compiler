@@ -2,8 +2,10 @@ import sys
 import argparse
 from .util import *
 from parsing.parse_program import *
-from compiler.compile import *
 from rasm.VirtualMachine import *
+from compiler.Errors import *
+from compiler.compile import compile as student_compile
+from demo.compile import compile as demo_compile
 
 argparser = argparse.ArgumentParser(description="Compile a file")
 argparser.add_argument(
@@ -15,6 +17,10 @@ argparser.add_argument(
 argparser.add_argument(
   '-s', '--rasm',
   help='write the generated rasm to a file')
+argparser.add_argument(
+  '-d', '--demo', 
+  help='compile using the demo implementation',
+  action='store_true')
 
 args = argparser.parse_args()
 filename = args.file[0]
@@ -35,7 +41,10 @@ try:
       sys.exit(1)
 
     # compile program to rasm
-    instrs = compile(defns, body)
+    if args.demo:
+      instrs = demo_compile(defns, body)
+    else:
+      instrs = student_compile(defns, body)
 
     # if requested, output generated rasm
     if args.rasm:
@@ -55,6 +64,8 @@ try:
     pass
   except (LexError, ParseError, CompileError, VMError) as err:
     print(err)
+  except NotImplementedError as err:
+    print(f"NotImplementedError: {err}")
   except Exception as err:
     print(f"InternalError: {err}")
 except FileNotFoundError:
