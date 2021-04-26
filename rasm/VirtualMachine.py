@@ -1,4 +1,4 @@
-
+from typing import List
 from .Operand import *
 from .Instr import *
 
@@ -41,7 +41,7 @@ class VirtualMachine:
       "Current Instruction:\n" + \
       cur_instr
 
-  def load_operand(self, op: Operand) -> int:
+  def load_operand(self, op: Operand) -> float:
     """Get the current value stored in an operand"""
     if op.isRans():
       return self.rans
@@ -56,7 +56,7 @@ class VirtualMachine:
     if op.isImm():
       return op.value
 
-  def store_operand(self, op: Operand, value: int):
+  def store_operand(self, op: Operand, value: float):
     """Store a value in the given operand"""
     if op.isRans():
       self.rans = value
@@ -71,7 +71,7 @@ class VirtualMachine:
     if op.isImm():
       raise BadDest(self, op)
 
-  def map_labels(self, pgrm: list) -> dict:
+  def map_labels(self, pgrm: List[Instr]) -> dict:
     """Map string labels in a program to the index of 
     the instruction that follows them"""
     label_addrs = {}
@@ -92,7 +92,7 @@ class VirtualMachine:
     else:
       raise InvalidTarget(self, label)
 
-  def execute(self, pgrm: list):
+  def execute(self, pgrm: List[Instr]):
     """Execute a program (list of instructions), leaving
     the machine in a new state"""
     self.__init__()

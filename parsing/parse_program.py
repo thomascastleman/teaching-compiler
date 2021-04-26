@@ -10,7 +10,7 @@ class ProgramParser(Parser):
   def __init__(self, display_token_name):
     super().__init__(display_token_name)
 
-  def parse(self, tokens) -> (List[Defn], Expr):
+  def parse(self, tokens: List[Token]) -> (List[Defn], Expr):
     """Parses a full program (defns and then a body) from its 
     input token stream"""
     if len(tokens) == 0:
@@ -195,7 +195,7 @@ class Tok(Enum):
   IF = auto()
   LET = auto()
 
-def display_token_name(name) -> str:
+def display_token_name(name: Tok) -> str:
   """Convert a token name into a user-facing string"""
   if name == Tok.LPAREN:
     return "'('"

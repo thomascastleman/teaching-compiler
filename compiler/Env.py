@@ -1,14 +1,5 @@
 import copy
 
-# =============================================================================
-# An Env maps identifier names (strings) to stack indices.
-# 
-# Interface:
-#  - Env(): constructs new empty environment
-#  - extend(name, si): returns new env with binding added
-#  - lookup(name): returns stack index associated with name (or None) 
-# =============================================================================
-
 class Env:
   """Environment, mapping names to stack indices"""
 

@@ -6,7 +6,7 @@ class Pattern:
     self.regex = regex
     self.make_token = make_token
 
-  def match(self, text: str):
+  def match(self, text: str) -> str:
     """If the text has a prefix matching this pattern, return
     the prefix"""
     m = re.match(self.regex, text)
@@ -65,7 +65,7 @@ def recover_bad_token(stream: str) -> str:
   return stream.split(' ')[0]
 
 class LexError(Exception):
-  def __init__(self, msg):
+  def __init__(self, msg: str):
     self.msg = msg
 
   def __str__(self):

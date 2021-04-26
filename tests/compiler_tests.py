@@ -83,17 +83,22 @@ class CompilerTests(unittest.TestCase):
     self.assertEqual(
       compile_and_run("(= -8 8)"),
       0)
+    # conditions just evaluate to numbers so we can use them accordingly
+    self.assertEqual(
+      compile_and_run("(= (= 1 2) (= 4 7))"),
+      1)
   
   def test_if(self):
     self.assertEqual(
-      compile_and_run("(if 77 1 0)"),
-      1)
+      compile_and_run("(if 77 1 0)"), 1)
     self.assertEqual(
-      compile_and_run("(if (= 4 5) (+ 2 3) (+ 4 5))"),
-      9)
+      compile_and_run("(if 0 1 0)"), 0)
     self.assertEqual(
-      compile_and_run("(if (if 0 0 1) (if 4 5 2) (if 3 2 1))"),
-      5)
+      compile_and_run("(if -1 1 0)"), 1)
+    self.assertEqual(
+      compile_and_run("(if (= 4 5) (+ 2 3) (+ 4 5))"), 9)
+    self.assertEqual(
+      compile_and_run("(if (if 0 0 1) (if 4 5 2) (if 3 2 1))"), 5)
 
   def test_let_and_names(self):
     self.assertEqual(
@@ -101,11 +106,11 @@ class CompilerTests(unittest.TestCase):
     self.assertEqual(
       compile_and_run("(let (name (+ 40 7)) (- name 3))"), 44)
     self.assertEqual(
-      compile_and_run(
-        "(let (x 5)" + \
-          "(let (y 15)" + \
-            "(let (z -1)" + \
-              "(+ x (+ y z)))))"), 
+      compile_and_run("""
+        (let (x 5)
+          (let (y 15)
+            (let (z -1)
+              (+ x (+ y z)))))"""), 
       19)
 
   def test_defns_and_app(self):
@@ -124,30 +129,51 @@ class CompilerTests(unittest.TestCase):
 
     # recursive functions
     self.assertEqual(
-      compile_and_run(
-        "(def (fact n)" + \
-          "(if (= n 0) 1 (* n (fact (sub1 n)))))" + \
-        "(fact 5)"),
+      compile_and_run("""
+        (def (fact n)
+          (if (= n 0) 1 (* n (fact (sub1 n)))))
+        (fact 5)"""),
       120)
     self.assertEqual(
-      compile_and_run(
-        "(def (odd n) (if (= n 0) 0 (even (sub1 n))))" + \
-        "(def (even n) (if (= n 0) 1 (odd (sub1 n))))" + \
-        "(even 16)"),
+      compile_and_run("""
+        (def (odd n) (if (= n 0) 0 (even (sub1 n))))
+        (def (even n) (if (= n 0) 1 (odd (sub1 n))))
+        (even 16)"""),
       1)
+
+    # infinite loop (causes stack overflow)
+    with self.assertRaises(InvalidRsp):
+      compile_and_run("""
+        (def (loop) (loop))
+        (loop)""")
+
+    # functions can call each other
+    self.assertEqual(
+      compile_and_run("""
+        (def (f x) (+ x x))
+        (def (g x) (* (f x) 3))
+        (def (h x) (add1 (g (sub1 x))))
+        (def (i x) (+ (f x) (h x)))
+        (i 4)
+      """),
+      27)
 
   def test_arity_mismatch(self):
     with self.assertRaises(ArityMismatch):
-      compile_and_run("(def (f x y) (* x y)) (f 10)"),
+      compile_and_run("(def (f x y) (* x y)) (f 10)")
     with self.assertRaises(ArityMismatch):
-      compile_and_run("(def (g) (+ 2 3)) (g 17 1 0 4)"),
+      compile_and_run("(def (g) (+ 2 3)) (g 17 1 0 4)")
+    with self.assertRaises(ArityMismatch):
+      compile_and_run("""
+        (def (args a1 a2 a3 a4 a5 a6 a7 a8 a9 a10) 0) 
+        (args 1 2 3 4 5 6 7 8 9)""")
 
   def test_undefined_fun(self):
     with self.assertRaises(UndefinedFun):
       compile_and_run("(def (g x) x) (f 5)")
     with self.assertRaises(UndefinedFun):
       compile_and_run("(let (fun 11) (fun 0 1 2))")
-  
+
   def test_unbound_name(self):
     with self.assertRaises(UnboundName):
       compile_and_run("x")

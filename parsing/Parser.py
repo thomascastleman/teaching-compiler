@@ -1,25 +1,27 @@
+from typing import List
+from .Lexer import *
 
 class Parser:
 
   def __init__(self, display_token_name):
     self.display_token_name = display_token_name
 
-  def setup(self, tokens):
+  def setup(self, tokens: List[Token]):
     """Resets the parser state"""
     self.tokens = tokens
     self.index = 0
 
-  def empty(self):
+  def empty(self) -> bool:
     """Have all tokens been processed"""
     return self.index >= len(self.tokens)
 
-  def peek(self):
+  def peek(self) -> Token:
     """Peek at the input stream at the current token"""
     if self.empty():
       raise ParseError("unexpected end of program")
     return self.tokens[self.index]
 
-  def next(self):
+  def next(self) -> Token:
     """Move past the current token, returning it"""
     if self.empty():
       raise ParseError("unexpected end of program")
@@ -69,7 +71,7 @@ class Parser:
 
 
 class ParseError(Exception):
-  def __init__(self, msg):
+  def __init__(self, msg: str):
     self.msg = msg
 
   def __str__(self):

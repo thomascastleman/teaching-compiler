@@ -1,6 +1,8 @@
+from typing import List
+from .Expr import *
 
 class Defn:
-  def __init__(self, name, params, body):
+  def __init__(self, name: str, params: List[str], body: Expr):
     self.name = name
     self.params = params
     self.body = body

@@ -49,7 +49,5 @@ def launch_repl(compile):
     except Exception as err:
       print(f"InternalError: {err}")
 
-print(args.demo)
-
 # TODO: if args.demo then use the demo implementation
 launch_repl(compile)

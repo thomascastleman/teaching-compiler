@@ -45,14 +45,18 @@ class RasmParser(Parser):
 
     return instrs
 
-  def parse_bin_op(self, tok_name, constructor, instrs):
+  def parse_bin_op(self, tok_name, constructor, instrs: List[Instr]):
+    """Parses a binary operator by parsing its name, source and dest operands,
+    and adding a constructed ast node to the given list of instrs"""
     self.eat(tok_name)
     src = self.parse_operand()
     self.eat(Tok.COMMA)
     dest = self.parse_operand()
     instrs.append(constructor(src, dest))
 
-  def parse_jump(self, jump_tok_name, jump_name, constructor, instrs):
+  def parse_jump(self, jump_tok_name, jump_name: str, constructor, instrs: List[Instr]):
+    """Parses a jump instruction (jmp, je, jne, call) by parsing its name
+    then its target, ensuring the target is valid"""
     self.eat(jump_tok_name)
     target = self.next()
     if target.name != Tok.LABEL:
@@ -110,7 +114,7 @@ class Tok(Enum):
   RANS = auto()
   RSP = auto()
 
-def display_token_name(name) -> str:
+def display_token_name(name: Tok) -> str:
   """Convert a token name into a user-facing string"""
   if name == Tok.COMMA:
     return "','"
