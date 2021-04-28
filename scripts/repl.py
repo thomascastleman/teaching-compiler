@@ -36,6 +36,15 @@ def launch_repl(compile):
     try:
       parsed = parse_program(pgrm)
 
+      # defn names in our running list so far
+      defn_names = list(map(lambda d: d.name, defns))
+      for d in parsed[0]:
+        if d.name in defn_names:
+          raise ParseError(f"function '{d.name}' has multiple definitions")
+        else:
+          # do this so duplicate defns in the same repl input are caught
+          defn_names.append(d.name)
+
       # add defns to running list
       defns += parsed[0]
       body = parsed[1]

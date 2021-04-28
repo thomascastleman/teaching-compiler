@@ -66,7 +66,7 @@ class ProgramParser(Parser):
       params.append(self.next().lexeme)
 
     # closing paren for param list
-    self.eat(Tok.RPAREN)  
+    self.eat(Tok.RPAREN)
 
     # parse body and defn closing paren
     body = self.parse_expr()
@@ -135,7 +135,7 @@ class ProgramParser(Parser):
       elif self.matches(Tok.LET):
         self.eat(Tok.LET)
         self.eat(Tok.LPAREN)
-        
+
         if not self.matches(Tok.SYM):
           raise ParseError(
             f"invalid identifier name: {display_token_name(self.peek().name)}")

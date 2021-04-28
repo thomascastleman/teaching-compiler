@@ -110,11 +110,11 @@ and defaults to 10,000 memory locations.
 ## Errors
 
 The compiler, correctly implemented, should raise errors in the following situations:
-| Error     | Description |
-| -------- | ------------- |
+| Error                       | Description |
+| --------------------------- | ------------- |
 | `ArityMismatch(args, defn)` | A function was called with the wrong number of arguments |
-| `UndefinedFun(fname)` | A name was used in application position that did not correspond to a function definition |
-| `UnboundName(name)` | An identifier appeared in the program without a binding occurrence |
+| `UndefinedFun(fname)`       | A name was used in application position that did not correspond to a function definition |
+| `UnboundName(name)`         | An identifier appeared in the program without a binding occurrence |
 
 ## Tests
 To run all tests, run `make test` from the project root. Note that compiler tests should fail if the compiler hasn't been implemented yet.
