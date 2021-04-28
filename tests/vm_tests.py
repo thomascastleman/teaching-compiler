@@ -306,5 +306,49 @@ class VMTests(unittest.TestCase):
         Call("no_target")
       ])
 
+  def test_various_exns(self):
+    with self.assertRaises(BadDest):
+      from_program([
+        Label(ENTRY_LABEL),
+        Mov(Imm(5), Imm(0))
+      ])
+    with self.assertRaises(BadStackAccess):
+      from_program([
+        Label(ENTRY_LABEL),
+        Add(StackOff(-1), Rans())
+      ])
+    with self.assertRaises(InvalidInstr):
+      from_program([
+        Label(ENTRY_LABEL),
+        Instr() # not a real instruction
+      ])
+    with self.assertRaises(InvalidTarget):
+      from_program([
+        Label(ENTRY_LABEL),
+        Jmp("non_existent")
+      ])
+    with self.assertRaises(BadStackAccess):
+      from_program([
+        Label(ENTRY_LABEL),
+        Sub(Imm(1), Rsp()), # makes rsp -1
+        Mov(StackOff(0), Rans())
+      ])
+    with self.assertRaises(DuplicateLabel):
+      from_program([
+        Label(ENTRY_LABEL),
+        Label(ENTRY_LABEL)
+      ])
+    with self.assertRaises(NoEntry):
+      from_program([
+        Mov(Imm(1), Rans())
+      ])
+    # this will overflow the stack eventually with ret addrs
+    with self.assertRaises(InvalidRsp):
+      from_program([
+        Label(ENTRY_LABEL),
+        Call(ENTRY_LABEL)
+      ])
+
+
 if __name__ == '__main__':
   unittest.main()

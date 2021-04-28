@@ -1,5 +1,8 @@
 
 class Expr:
+  """An Expr represents an expression in our language that can be 
+  evaluated to produce a value (a number)"""
+
   def isNum(self):
     return isinstance(self, Num)
 

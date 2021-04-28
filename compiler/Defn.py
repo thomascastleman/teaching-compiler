@@ -2,6 +2,8 @@ from typing import List
 from .Expr import *
 
 class Defn:
+  """A Defn represents a function definition that can be called by our code"""
+
   def __init__(self, name: str, params: List[str], body: Expr):
     self.name = name
     self.params = params
