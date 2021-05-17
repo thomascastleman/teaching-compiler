@@ -22,7 +22,10 @@ class Imm(Operand):
       self.value == other.value
 
   def __str__(self):
-    return str(self.value)
+    if float(self.value).is_integer():
+      return str(int(self.value))
+    else:
+      return str(self.value)
 
 class Rans(Operand):
   """Answer register rans"""
