@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from enum import Enum, auto
 from compiler.Defn import *
 from compiler.Expr import *
@@ -10,12 +10,9 @@ class ProgramParser(Parser):
   def __init__(self, display_token_name):
     super().__init__(display_token_name)
 
-  def parse(self, tokens: List[Token]) -> (List[Defn], Expr):
+  def parse(self, tokens: List[Token]) -> Tuple[List[Defn], List[Expr]]:
     """Parses a full program (defns and then a body) from its 
     input token stream"""
-    if len(tokens) == 0:
-      raise EmptyProgram
-
     # initialize parser state
     self.setup(tokens)
 
@@ -25,14 +22,10 @@ class ProgramParser(Parser):
     while self.matches_prefix(defn_prefix):
       defns.append(self.parse_defn())
 
-    body = None # optional body
-
-    # if there are more tokens, parse a body expression
-    if self.index < len(self.tokens):
-      body = self.parse_expr()
-
-    if self.index < len(self.tokens):
-      raise ParseError("body must be last expression in program")
+    # parse expressions for the rest of the program
+    exprs = []
+    while self.index < len(self.tokens):
+      exprs.append(self.parse_expr())
 
     # check defns for uniqueness
     defn_names = set()
@@ -42,7 +35,7 @@ class ProgramParser(Parser):
       else:
         defn_names.add(d.name)
 
-    return (defns, body)
+    return (defns, exprs)
 
   def parse_defn(self) -> Defn:
     if self.empty():
@@ -176,10 +169,6 @@ class ProgramParser(Parser):
       raise ParseError(
         f"invalid expression near {display_token_name(self.peek().name)}")
 
-class EmptyProgram(Exception):
-  """Exception for indicating empty input"""
-  pass
-
 class Tok(Enum):
   LPAREN = auto()
   RPAREN = auto()
@@ -246,7 +235,7 @@ lexer = Lexer([
 # global parser for programs
 parser = ProgramParser(display_token_name)
 
-def parse_program(pgrm: str) -> (List[Defn], Expr):
+def parse_program(pgrm: str) -> Tuple[List[Defn], List[Expr]]:
   """Parses a string program to produce a list of function
   definitions and a program body expression"""
   tokens = lexer.lex(pgrm)

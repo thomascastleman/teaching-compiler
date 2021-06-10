@@ -121,6 +121,9 @@ class RasmParserTests(unittest.TestCase):
       Sub(Imm(0), Rsp()),
     ])
 
+  def test_empty(self):
+    self.assertEqual(parse_rasm(""), [])
+
   def test_parse_errors(self):
     with self.assertRaises(ParseError):
       parse_rasm("jmp 16")

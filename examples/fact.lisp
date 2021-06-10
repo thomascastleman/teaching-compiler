@@ -5,4 +5,6 @@
     1
     (* n (fact (sub1 n))))) 
 
-(fact 5)
+(fact 1)
+(fact 2)
+(fact 3)

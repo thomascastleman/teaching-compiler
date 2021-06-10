@@ -9,11 +9,9 @@ def compile_and_run(pgrm: str) -> float:
   """Compiles the given program and runs it to produce a number
   NOTE: does not catch exceptions, assumes tests will do so if intending"""
   # parse program to AST
-  parsed = parse_program(pgrm)
-  defns = parsed[0]
-  body = parsed[1]
+  (defns, exprs) = parse_program(pgrm)
   # compile to rasm
-  instrs = compile(defns, body)
+  instrs = compile(defns, exprs)
   # execute on virtual machine
   vm = VirtualMachine()
   vm.execute(instrs)
@@ -158,6 +156,11 @@ class CompilerTests(unittest.TestCase):
       """),
       27)
 
+  def test_empty_program(self):
+    # empty program generates no code (other than entry label),
+    # so rans stays at initial value (0)
+    self.assertEqual(compile_and_run(""), 0)
+
   def test_arity_mismatch(self):
     with self.assertRaises(ArityMismatch):
       compile_and_run("(def (f x y) (* x y)) (f 10)")
@@ -181,7 +184,6 @@ class CompilerTests(unittest.TestCase):
       compile_and_run("(def (f x) x) f")
     with self.assertRaises(UnboundName):
       compile_and_run("(+ 2 name)")
-
 
 if __name__ == '__main__':
   unittest.main()
