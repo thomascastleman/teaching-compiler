@@ -167,12 +167,12 @@ class Ret(Instr):
     return "\tret"
 
 class Print(Instr):
-  def __init__(self, op):
-    self.op = op
+  def __init__(self, operand):
+    self.operand = operand
 
   def __eq__(self, other):
     return isinstance(other, Print) and \
-      self.op == other.op
+      self.operand == other.operand
 
   def __str__(self):
-    return f"\tprint {self.op}"
+    return f"\tprint {self.operand}"
