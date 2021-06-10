@@ -12,9 +12,9 @@ def compile_and_run(pgrm: str) -> float:
   (defns, exprs) = parse_program(pgrm)
   # compile to rasm
   instrs = compile(defns, exprs)
-  # execute on virtual machine
+  # execute on virtual machine (no printing)
   vm = VirtualMachine()
-  vm.execute(instrs)
+  vm.execute(instrs, suppress_output=True)
   # return computed answer
   return vm.rans
 
@@ -155,6 +155,15 @@ class CompilerTests(unittest.TestCase):
         (i 4)
       """),
       27)
+
+  def test_print(self):
+    # print evaluates to its operand
+    self.assertEqual(
+      compile_and_run("(print (+ 2 10))"), 
+      12)
+    self.assertEqual(
+      compile_and_run("(print (print (print 3)))"),
+      3)
 
   def test_empty_program(self):
     # empty program generates no code (other than entry label),

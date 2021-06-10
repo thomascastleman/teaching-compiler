@@ -33,6 +33,9 @@ class Instr:
   def isRet(self):
     return isinstance(self, Ret)
 
+  def isPrint(self):
+    return isinstance(self, Print)
+
 class Mov(Instr):
   def __init__(self, src, dest):
     self.src = src
@@ -162,3 +165,14 @@ class Ret(Instr):
 
   def __str__(self):
     return "\tret"
+
+class Print(Instr):
+  def __init__(self, op):
+    self.op = op
+
+  def __eq__(self, other):
+    return isinstance(other, Print) and \
+      self.op == other.op
+
+  def __str__(self):
+    return f"\tprint {self.op}"

@@ -39,6 +39,11 @@ def compile_expr(exp: Expr, defns: List[Defn], si: int, env: Env) -> List[Instr]
     op_instrs = compile_expr(exp.operand, defns, si, env)
     return op_instrs + [Sub(Imm(1), Rans())]
 
+  elif exp.isPrintExpr():
+    # compile operand into rans, then print rans
+    op_instrs = compile_expr(exp.operand, defns, si, env)
+    return op_instrs + [Print(Rans())]
+
   elif exp.isPlus():
     # compile left, store on stack
     # compile right, then add stored left to rans

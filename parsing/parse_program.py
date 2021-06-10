@@ -115,6 +115,13 @@ class ProgramParser(Parser):
         self.eat(Tok.RPAREN)
         return Equals(left, right)
 
+      elif self.matches(Tok.PRINTEXPR):
+        self.eat(Tok.PRINTEXPR)
+        operand = self.parse_expr()
+        self.eat(Tok.RPAREN)
+
+        return PrintExpr(operand)
+
       # conditionals
       elif self.matches(Tok.IF):
         self.eat(Tok.IF)
@@ -140,7 +147,7 @@ class ProgramParser(Parser):
         self.eat(Tok.RPAREN)
 
         return Let(name, value, body)
-      
+
       # must be an App
       else:
         if not self.matches(Tok.SYM):
@@ -183,6 +190,7 @@ class Tok(Enum):
   EQUALS = auto()
   IF = auto()
   LET = auto()
+  PRINTEXPR = auto()
 
 def display_token_name(name: Tok) -> str:
   """Convert a token name into a user-facing string"""
@@ -212,6 +220,8 @@ def display_token_name(name: Tok) -> str:
     return "'if'"
   elif name == Tok.LET:
     return "'let'"
+  elif name == Tok.PRINTEXPR:
+    return "print"
 
 # global lexer for programs
 lexer = Lexer([
@@ -228,6 +238,7 @@ lexer = Lexer([
   Pattern(r"=",                         lambda s: Token(Tok.EQUALS, None)),
   Pattern(r"if",                        lambda s: Token(Tok.IF, None)),
   Pattern(r"let",                       lambda s: Token(Tok.LET, None)),
+  Pattern(r"print",                     lambda s: Token(Tok.PRINTEXPR, None)),
   Pattern(r"-?[0-9]+(\.[0-9]+)?",       lambda s: Token(Tok.NUM, float(s))),
   Pattern(r"[a-zA-Z][a-zA-Z0-9\?\!-]*", lambda s: Token(Tok.SYM, s)),
 ])

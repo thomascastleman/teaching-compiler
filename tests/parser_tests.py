@@ -144,6 +144,14 @@ class ParserTests(unittest.TestCase):
     self.assertEqual(
       parse_program("(def (f x) x)"),
       ([Defn("f", ["x"], Name("x"))], []))
+  
+  def test_printexpr(self):
+    self.assertEqual(
+      parse_program("(print 10)"),
+      ([], [PrintExpr(Num(10))]))
+    self.assertEqual(
+      parse_program("(print (print 1))"),
+      ([], [PrintExpr(PrintExpr(Num(1)))]))
 
   def test_comments(self):
     self.assertEqual(

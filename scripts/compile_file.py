@@ -53,7 +53,6 @@ try:
     if args.run:
       vm = VirtualMachine()
       vm.execute(instrs)
-      print_num(vm.rans)
   except (LexError, ParseError, CompileError, VMError) as err:
     print(err)
   except NotImplementedError as err:
