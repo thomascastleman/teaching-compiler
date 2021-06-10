@@ -196,7 +196,7 @@ class VirtualMachine:
 
     # print a value
     elif instr.isPrint():
-      value = self.load_operand(instr.op)
+      value = self.load_operand(instr.operand)
 
       if not self.suppress_output:
         print_num(value)
